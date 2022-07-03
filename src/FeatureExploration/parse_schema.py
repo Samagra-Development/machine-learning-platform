@@ -16,11 +16,13 @@ def parse_schema_to_json(path_to_schema):
     # add all the features
     for feature in schema_message['feature']:
         features[feature['name']] = {
-            "type" : "categorical" if feature['type'] == 'BYTES' else feature['type'].lower()
+            "type" : "categorical" if feature['type'] == 'BYTES' else feature['type'].lower(),
+            "len_value" : 1
         }
 
     # add distinct values for categorical features
     for feature in schema_message['stringDomain']:
         features[feature['name']]["value"] = feature['value']
+        features[feature['name']]["len_value"] = len(feature['value'])
     
     return features
