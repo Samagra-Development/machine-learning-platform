@@ -23,7 +23,7 @@ ffd = f"""
     d = keras.layers.concatenate(inputs)
 
     # adding all the hidden neurons
-    for neuron in neurons:
+    for neuron in _NEURONS:
         d = keras.layers.Dense(neuron, activation=_ACTIVATION)(d)
     
     # creating output
