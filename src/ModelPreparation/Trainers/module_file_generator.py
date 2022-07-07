@@ -7,11 +7,12 @@ def generate_model_trainer(
     path_to_schema='schema.pbtxt',
     model_type="classification",
     train_batch_size=20,
-    eval_batch_size=10):
+    eval_batch_size=10,
+    epoch = 10):
 
     model = available_models[model_type]
     
-    # generating model specific hyperparameters
+    # generating model specific hyperparameters0, 3
     model_hyperparameters = ""
     for k,v in model.items():
         if k=="model":
@@ -35,31 +36,32 @@ _FEATURE_DICT = {parse_schema_to_json(path_to_schema)}
 
 # features and label as provided by users
 _FEATURE_KEYS = {features}
-_FEATURE_LABEL = {labels}
+_FEATURE_LABEL = "{labels}"
 
 # model specific hyperparameters
 {model_hyperparameters}
 
 # batch sizes
+_EPOCH = {epoch}
 _TRAIN_BATCH_SIZE = {train_batch_size}
 _EVAL_BATCH_SIZE = {eval_batch_size}
 
 # TFX Transform will call this function.
 def preprocessing_fn(inputs):
-    "tf.transform's callback function for preprocessing inputs.
+    # tf.transform's callback function for preprocessing inputs.
 
-    Args:
-    inputs: map from feature keys to raw not-yet-transformed features.
+    # Args:
+    # inputs: map from feature keys to raw not-yet-transformed features.
 
-    Returns:
-    Map from string feature key to transformed feature.
-    "
+    # Returns:
+    # Map from string feature key to transformed feature.
+    
     outputs = {{}}
 
     # Uses features defined in _FEATURE_KEYS only.
-    for key in _FEATURE_KEYS+_FEATURE_LABEL:
+    for key in _FEATURE_KEYS+[_FEATURE_LABEL]:
         # if the feature is categorical then do one hot encoding
-        if _FEATURE_DICT[key]["type"] = "categorical":
+        if _FEATURE_DICT[key]["type"] == "categorical":
             feature_keys = _FEATURE_DICT[key]["value"]
             initializer = tf.lookup.KeyValueTensorInitializer(
                                         keys=feature_keys,
@@ -68,7 +70,10 @@ def preprocessing_fn(inputs):
                                         value_dtype=tf.int64
                                     )
             feature_table = tf.lookup.StaticHashTable(initializer, default_value=-1)
-            outputs[key] = feature_table.lookup(inputs[key])
+            encoded = feature_table.lookup(inputs[key])
+            depth = tf.cast(len(feature_keys),tf.int32)
+            one_hot_encoded = tf.one_hot(encoded,depth)
+            outputs[key] = tf.reshape(one_hot_encoded, [-1, depth])
         
         # else standorize it
         else:
@@ -80,14 +85,11 @@ def preprocessing_fn(inputs):
 # as serving request
 def _apply_preprocessing(raw_features, tft_layer):
     transformed_features = tft_layer(raw_features)
-    transformed_labels = []
-    for key in _LABEL_KEY:
-        if key in raw_features:
-            transformed_label = transformed_features.pop(_LABEL_KEY)
-            transformed_labels.append(transformed_label)
-    if len(transformed_labels) == 0:
-        return None
-    return transformed_features,transformed_labels
+    if _FEATURE_LABEL in raw_features:
+        transformed_label = transformed_features.pop(_FEATURE_LABEL)
+        return transformed_features,transformed_label
+    return transformed_features,None
+    
 
 def _get_serve_tf_examples_fn(model, tf_transform_output):
     # We must save the tft_layer to the model to ensure its assets are kept and tracked.
@@ -159,7 +161,8 @@ def run_fn(fn_args: tfx.components.FnArgs):
         train_dataset,
         steps_per_epoch=fn_args.train_steps,
         validation_data=eval_dataset,
-        validation_steps=fn_args.eval_steps)
+        validation_steps=fn_args.eval_steps,
+        epochs = _EPOCH)
 
     # NEW: Save a computation graph including transform layer.
     signatures = {{

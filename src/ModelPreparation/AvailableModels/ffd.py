@@ -27,9 +27,7 @@ ffd = f"""
         d = keras.layers.Dense(neuron, activation=_ACTIVATION)(d)
     
     # creating output
-    num_output = 0
-    for label in _FEATURE_LABEL:
-        num_output += _FEATURE_DICT[label]["len_value"]
+    num_output = _FEATURE_DICT[_FEATURE_LABEL]["len_value"]
     outputs = keras.layers.Dense(num_output)(d)
 
     # generate and compile model
