@@ -1,5 +1,5 @@
 from ..AvailableModels.available_models import available_models
-from ....src.FeatureExploration.parse_schema import parse_schema_to_json
+from src.FeatureExploration.parse_schema import parse_schema_to_json
 
 def generate_model_trainer(
     features,

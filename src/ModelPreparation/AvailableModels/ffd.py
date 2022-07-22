@@ -1,19 +1,3 @@
-# import tensorflow as tf
-
-# class FeedForwardNeuralNet(tf.keras.Sequential):
-#     def __init__(self,neurons):
-#         super(FeedForwardNeuralNet,self).__init__()
-#         for layer in self._ffd(neurons):
-#             self.add(layer)
-    
-#     @staticmethod
-#     def _ffd(neurons):
-#         layers = []
-#         for neuron in neurons:
-#             layers.append(tf.keras.layers.Dense(neuron))
-#             layers.append(tf.keras.layers.ReLU())
-#         return layers[:-1]
-
 ffd = f"""
     # creating input
     inputs = [

@@ -3,7 +3,7 @@ from google.protobuf import json_format
 
 def parse_schema_to_json(path_to_schema):
     """Parses the schema into readable json"""
-
+ 
     # loading and putting schema 
     schema = load_schema_text(path_to_schema)
 
