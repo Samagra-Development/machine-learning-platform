@@ -1,14 +1,13 @@
-from ffd import ffd
-import tensorflow as tf
+from .ffd import ffd
 
 available_models = {
     "classification" : {
         "model" : ffd,
-        "loss" : "tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)",
+        "loss" : "tf.keras.losses.CategoricalCrossentropy(from_logits=True)",
         "neurons" : [8,8],
         "optimizer" : "tf.keras.optimizers.Adam(1e-2)",
         "activation" : 'tf.keras.activations.relu',
-        "metrics" : ["accuracy"]
+        "metrics" : ['accuracy']
     },
     "regression" : {
         "model" : ffd,
