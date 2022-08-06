@@ -89,3 +89,12 @@ def create_model(request):
         return Response(fin_data,status=200)
     except:
         return Response({'message':'Please provide all the required columns : title,dataset,features,label'})
+    
+@api_view(['GET'])
+def get_model(request,pk):
+    try:
+        models = MlModel.objects.get(id=pk)
+        data = MlModelSerializer(models,many=False).data
+        return Response(data,status=200)
+    except:
+        return Response({'message':"Model with given id doesn't exist"},status=400)
