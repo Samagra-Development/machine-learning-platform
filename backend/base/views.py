@@ -4,12 +4,18 @@ from rest_framework.response import Response
 from backend.settings import BASE_DIR
 import os
 import shutil
+from tfx import v1 as tfx
+import tensorflow as tf
+import numpy as np
 
 from utils.FeatureExploration.schema_generator import SchemaGenerator
 from utils.FeatureExploration.parse_schema import parse_schema_to_json
+from utils.ModelPreparation.AvailableModels.available_models import available_models
+from utils.ModelPreparation.Trainers.module_file_generator import generate_model_trainer
+from utils.ModelPreparation.Trainers.training_pipeline import _create_pipeline
 
-# Create your views here.
-
+from .models import MlModel
+from .serializers import MlModelSerializer
 
 @api_view(['GET'])
 def get_datasets(request):
@@ -56,3 +62,9 @@ def get_features(request,pk):
     
     feature_info = parse_schema_to_json(schema_path)
     return Response(data=feature_info,status=200)
+
+@api_view(['GET'])
+def get_all_model(request):
+    models = MlModel.objects.all()
+    data = MlModelSerializer(models,many=True).data
+    return Response(data,status=200)
