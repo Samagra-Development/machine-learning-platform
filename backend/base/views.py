@@ -98,3 +98,64 @@ def get_model(request,pk):
         return Response(data,status=200)
     except:
         return Response({'message':"Model with given id doesn't exist"},status=400)
+    
+@api_view(['GET'])
+def train_model(request,pk):
+    try:
+        model = MlModel.objects.get(id=pk)
+    except:
+        return Response({'message':"Model with given id doesn't exist"},status=400)
+    
+    id = model.id
+    dataset = model.dataset
+    features = model.features
+    label = model.label
+    model_type = model.model_type
+    
+    ROOT = f"{BASE_DIR}/Models/{str(id)}"
+    PIPELINE_NAME = dataset.split('.')[0]
+    # Output directory to store artifacts generated from the pipeline.
+    PIPELINE_ROOT = os.path.join(ROOT,'pipelines', PIPELINE_NAME)
+    # Path to a SQLite DB file to use as an MLMD storage.
+    METADATA_PATH = os.path.join(ROOT,'metadata', PIPELINE_NAME, 'metadata.db')
+    # Output directory where created models from the pipeline will be exported.
+    SERVING_MODEL_DIR = os.path.join(ROOT,'serving_model', str(id))
+
+    DATA_ROOT = f"{ROOT}/data"
+    SCHEMA_PATH = f"{BASE_DIR}/Datasets/{PIPELINE_NAME}/schema"
+    
+    if os.path.exists(ROOT):
+        shutil.rmtree(ROOT)
+
+    os.mkdir(ROOT)
+    os.mkdir(DATA_ROOT)
+    
+    dataset = f'{BASE_DIR}/utils/Data/{dataset}'
+    shutil.copyfile(dataset,f"{DATA_ROOT}/data.csv")
+    
+    _module_file = f'{ROOT}/utils.py'
+    schema_path = f"{SCHEMA_PATH}/schema.pbtxt"
+    
+    model_trainer = generate_model_trainer(
+        features=features,
+        labels=label,
+        path_to_schema=schema_path,
+        model_type = model_type
+    )
+
+    with open(_module_file,'w') as f:
+        f.write(model_trainer)
+        
+    tfx.orchestration.LocalDagRunner().run(
+        _create_pipeline(
+            pipeline_name=PIPELINE_NAME,
+            pipeline_root=PIPELINE_ROOT,
+            data_root=DATA_ROOT,
+            schema_path=SCHEMA_PATH,
+            module_file=_module_file,
+            serving_model_dir=SERVING_MODEL_DIR,
+            metadata_path=METADATA_PATH
+        )
+        
+    )
+    return Response({'message':'Model trained '},status=200)
