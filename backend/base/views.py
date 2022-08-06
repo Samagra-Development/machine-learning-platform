@@ -68,3 +68,24 @@ def get_all_model(request):
     models = MlModel.objects.all()
     data = MlModelSerializer(models,many=True).data
     return Response(data,status=200)
+
+@api_view(['POST'])
+def create_model(request):
+    data = request.data
+    try:
+        #assert data["model_type"] in available_models.keys()
+        model = MlModel.objects.create(
+            title = data['title'],
+            dataset = data['dataset'],
+            features = data['features'],
+            label = data['label'],
+            model_type = data["model_type"],
+        )
+        if "description" in data.keys():
+            model.description = data['description']
+            model.save()
+            
+        fin_data = MlModelSerializer(model,many=False).data
+        return Response(fin_data,status=200)
+    except:
+        return Response({'message':'Please provide all the required columns : title,dataset,features,label'})
