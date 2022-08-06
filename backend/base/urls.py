@@ -7,4 +7,5 @@ urlpatterns = [
     path('models',views.get_all_model,name='model'),
     path('models/create',views.create_model,name='create_model'),
     path('models/<str:pk>',views.get_model,name='specific_model'),
+    path('models/<str:pk>/train',views.train_model,name='train_model'),
 ]
