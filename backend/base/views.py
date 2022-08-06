@@ -163,3 +163,50 @@ def train_model(request,pk):
 @api_view(['GET'])
 def get_model_type(request):
     return Response(available_models.keys(),status=200)
+
+@api_view(['POST'])
+def predict(request,pk):
+    trained_models = os.listdir(f'{BASE_DIR}/Models')
+    try:
+        model = MlModel.objects.get(id=pk)
+    except:
+        return Response({'message':"Model with given id doesn't exist"},status=400)
+    if pk not in trained_models:
+        return Response({'message':'Model is not trained yet'},status=200)
+    data = request.data
+    dataset = model.dataset
+    features = model.features
+    features = [x.replace("'"," ").replace('"'," ").strip() for x in features.strip('][').split(',')]
+    print(features)
+    label = model.label
+    latest = max([int(x) for x in os.listdir(f'{BASE_DIR}/Models/{pk}/serving_model/{pk}')])
+    
+    inp = []
+    file_name = dataset.split('.')[0]
+    schema_data = parse_schema_to_json(f'{BASE_DIR}/Datasets/{file_name}/schema/schema.pbtxt')
+    
+    for feature in features:
+        if feature not in data.keys():
+            return Response({'message':f'Must provide for feature : {feature}'},status=400)
+        
+        feat_value = data[feature]
+        
+        if not isinstance(feat_value,list):
+            return Response({'message':'Input must be a list'},status=400)
+        feature_len = schema_data[feature]["len_value"]
+        if feature_len != len(feat_value):
+            return Response({'message':f'input for {feature} should be {feature_len}'},response=400)
+        inp.append(tf.convert_to_tensor(np.array(feat_value,ndmin=2,dtype=np.float32)))
+        
+    trained_model = tf.saved_model.load(f'{BASE_DIR}/Models/{pk}/serving_model/{pk}/{latest}')
+    
+    output = trained_model(inp).numpy()[0]
+    
+    label_value = schema_data[label]
+    if label_value["len_value"] == 1:
+        return Response({label:output},status=200)
+    fin_output = {}
+    for (a,b) in zip(label_value["value"],output):
+        fin_output[a] = b
+        
+    return Response({label:fin_output},status=200)

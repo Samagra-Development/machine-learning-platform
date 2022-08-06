@@ -9,4 +9,5 @@ urlpatterns = [
     path('models/available',views.get_model_type,name='create_model'),
     path('models/<str:pk>',views.get_model,name='specific_model'),
     path('models/<str:pk>/train',views.train_model,name='train_model'),
+    path('models/<str:pk>/predict',views.predict,name='predict_model'),
 ]
