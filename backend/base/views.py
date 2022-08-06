@@ -159,3 +159,7 @@ def train_model(request,pk):
         
     )
     return Response({'message':'Model trained '},status=200)
+
+@api_view(['GET'])
+def get_model_type(request):
+    return Response(available_models.keys(),status=200)
