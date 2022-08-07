@@ -158,7 +158,19 @@ def train_model(request,pk):
         )
         
     )
-    return Response({'message':'Model trained '},status=200)
+    with open(f'{ROOT}/metrics.json') as f:
+        model_metrics = json.load(f)
+    
+    # update model
+    model.train_loss = round(model_metrics["loss"][-1],4)
+    model.train_accuracy = round(model_metrics["accuracy"][-1],4)
+    model.test_loss = round(model_metrics["val_loss"][-1],4)
+    model.test_accuracy = round(model_metrics["val_accuracy"][-1],4)
+    model.save()
+    
+    model = MlModel.objects.get(id=pk)
+    data = MlModelSerializer(model,many=False).data
+    return Response(data,status=200)
 
 @api_view(['GET'])
 def get_model_type(request):
