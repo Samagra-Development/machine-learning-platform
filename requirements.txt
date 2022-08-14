@@ -1,0 +1,6 @@
+tfx==1.8.0
+tensorflow==2.8.2
+tensorflow-data-validation==1.8.0
+apache-beam==2.39.0
+Django==3.2.9
+djangorestframework==3.12.4
