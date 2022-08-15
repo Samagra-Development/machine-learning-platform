@@ -2,9 +2,9 @@
 
 This goal of this project is to build a seamless machine learning solution with a feature store to use/resuse/update features easily and use integration with training, deplyoying, prediction services to give predictions to the user over gov-tech usecases.
 
-This project is build with Hopsworks Opensource library, Tensorflow, Tensorflow Extended, Django and Django REST Framwork.
+This project is build with **Hopsworks Opensource library**, **Tensorflow**, **Tensorflow Extended**, **Django** and **Django REST Framwork**.
 
-You can follow the following steps to setup the project locally.
+- You can follow the following steps to setup the project locally:
 <ol>
     <li> 
         Fork the Repo. 
@@ -68,4 +68,4 @@ Use a trained model to make prediction
 
 
 
-In case of any queries, please feel free to reach out to: [Janhavi Lande](https://www.linkedin.com/in/janhavi12/), [Pratyaksh Singh](https://www.linkedin.com/in/psn0w/).
+In case of any queries, please feel free to reach out to: **[Janhavi Lande](https://www.linkedin.com/in/janhavi12/), [Pratyaksh Singh](https://www.linkedin.com/in/psn0w/).
