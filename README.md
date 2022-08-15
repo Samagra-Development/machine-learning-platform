@@ -67,7 +67,7 @@ Runs the training pipeline to achieve this.
 ### POST /api/models/{str:id}/predict 
 Use a trained model to make prediction
 
-#Deploying the Machine Learning Platform
+# Deploying the Machine Learning Platform
 
 Deploying the ML platform app is fairly easy; you can contarise the Django app and then deploy it. This kind of deployment won’t let you deal with the jobs management for model training as Django will automatically run it in one of the threads. To run the training on a different server you just need to change the LocalDagRunner in backend/base/views.py with the pipeline runner for your specific server. TFX comes with inbuilt runner for kubeflow based server which is KubeflowDagRunner. The feature store once connected with AWS/Azure/GCP provides an easy way to ingest features into the pipelines.
 
