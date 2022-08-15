@@ -68,4 +68,4 @@ Use a trained model to make prediction
 
 
 
-In case of any queries, please feel free to reach out to: **[Janhavi Lande](https://www.linkedin.com/in/janhavi12/), [Pratyaksh Singh](https://www.linkedin.com/in/psn0w/).
+In case of any queries, please feel free to reach out to: **[Janhavi Lande]**(https://www.linkedin.com/in/janhavi12/), **[Pratyaksh Singh]**(https://www.linkedin.com/in/psn0w/).
