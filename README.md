@@ -1,10 +1,10 @@
-# Machine Learning Platform
+## Machine Learning Platform
 
 This goal of this project is to build a seamless machine learning solution with a feature store to use/resuse/update features easily and use integration with training, deplyoying, prediction services to give predictions to the user over gov-tech usecases.
 
 This project is build with **Hopsworks Opensource library**, **Tensorflow**, **Tensorflow Extended**, **Django** and **Django REST Framwork**.
 
-# How to set up the ML platform?
+## How to set up the ML platform?
 - You can follow the following steps to setup the project locally:
 <ol>
     <li> 
@@ -35,7 +35,7 @@ This project is build with **Hopsworks Opensource library**, **Tensorflow**, **T
 
 To set up the feature store with the cloud, follow the detailed documentation [here](https://docs.google.com/document/d/19OANtsMTX6f5xBhio9-m9tKORE-lg2OFT8-MpEXqva8/edit?usp=sharing).
 
-# APIs associated with ML Platform
+## APIs associated with ML Platform
 The APIs that are exposed for the platform are : 
 
 ### GET /api/datasets 
@@ -67,8 +67,9 @@ Runs the training pipeline to achieve this.
 ### POST /api/models/{str:id}/predict 
 Use a trained model to make prediction
 
-# Deploying the Machine Learning Platform
+## Deploying the Machine Learning Platform
 
 Deploying the ML platform app is fairly easy; you can contarise the Django app and then deploy it. This kind of deployment won’t let you deal with the jobs management for model training as Django will automatically run it in one of the threads. To run the training on a different server you just need to change the LocalDagRunner in backend/base/views.py with the pipeline runner for your specific server. TFX comes with inbuilt runner for kubeflow based server which is KubeflowDagRunner. The feature store once connected with AWS/Azure/GCP provides an easy way to ingest features into the pipelines.
 
 In case of any queries, please feel free to reach out to: [Janhavi Lande](https://www.linkedin.com/in/janhavi12/), [Pratyaksh Singh](https://www.linkedin.com/in/psn0w/).
+
