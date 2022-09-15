@@ -30,6 +30,7 @@ from tensorflow_transform.tf_metadata import schema_utils
 
 from tfx import v1 as tfx
 from tfx_bsl.public import tfxio
+import json
 
 # description of features present in the dataset
 _FEATURE_DICT = {parse_schema_to_json(path_to_schema)}
@@ -157,13 +158,18 @@ def run_fn(fn_args: tfx.components.FnArgs):
         batch_size=_EVAL_BATCH_SIZE)
 
     model = _build_keras_model()
-    model.fit(
+    history = model.fit(
         train_dataset,
         steps_per_epoch=fn_args.train_steps,
         validation_data=eval_dataset,
         validation_steps=fn_args.eval_steps,
         epochs = _EPOCH)
-
+        
+    tmp_path = fn_args.transform_graph_path.split("pipelines")[0]
+    metrics_path = f"{{tmp_path}}metrics.json"
+    with open(metrics_path,"w") as f:
+        json.dump(history.history,f)
+    
     # NEW: Save a computation graph including transform layer.
     signatures = {{
         'serving_default': _get_serve_tf_examples_fn(model, tf_transform_output),
