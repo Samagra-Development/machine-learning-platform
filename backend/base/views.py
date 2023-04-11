@@ -8,6 +8,7 @@ from tfx import v1 as tfx
 import tensorflow as tf
 import numpy as np
 import json
+import tempfile
 
 from utils.FeatureExploration.schema_generator import SchemaGenerator
 from utils.FeatureExploration.parse_schema import parse_schema_to_json
@@ -40,11 +41,11 @@ def get_features(request,pk):
     METADATA_PATH = os.path.join(ROOT,'metadata', PIPELINE_NAME, 'metadata.db')
     # Output directory to store artifacts generated from the pipeline.
     PIPELINE_ROOT = os.path.join(ROOT,'pipelines', PIPELINE_NAME)
-    
+
     if os.path.exists(ROOT):
         shutil.rmtree(ROOT)
 
-    os.mkdir(ROOT)
+    os.makedirs(ROOT, exist_ok=True)
     os.mkdir(DATA_ROOT)
     os.mkdir(SCHEMA_PATH)
     shutil.copyfile(dataset,os.path.join(DATA_ROOT,'data.csv'))
@@ -128,7 +129,7 @@ def train_model(request,pk):
     if os.path.exists(ROOT):
         shutil.rmtree(ROOT)
 
-    os.mkdir(ROOT)
+    os.makedirs(ROOT, exist_ok=True)
     os.mkdir(DATA_ROOT)
     
     dataset = os.path.join(BASE_DIR,'utils','Data',dataset)
@@ -146,7 +147,7 @@ def train_model(request,pk):
 
     with open(_module_file,'w') as f:
         f.write(model_trainer)
-        
+ 
     tfx.orchestration.LocalDagRunner().run(
         _create_pipeline(
             pipeline_name=PIPELINE_NAME,
@@ -164,9 +165,16 @@ def train_model(request,pk):
     
     # update model
     model.train_loss = round(model_metrics["loss"][-1],4)
-    model.train_accuracy = round(model_metrics["accuracy"][-1],4)
     model.test_loss = round(model_metrics["val_loss"][-1],4)
-    model.test_accuracy = round(model_metrics["val_accuracy"][-1],4)
+    if "accuracy" in model_metrics.keys():
+        model.train_accuracy = round(model_metrics["accuracy"][-1],4)
+    if "val_accuracy" in model_metrics.keys():
+        model.test_accuracy = round(model_metrics["val_accuracy"][-1],4)
+    if "mean_absolute_error" in model_metrics.keys():
+        model.train_mean_absolute_error = round(model_metrics["mean_absolute_error"][-1],4)
+    if "val_mean_absolute_error" in model_metrics.keys():
+        model.test_mean_absolute_error = round(model_metrics["val_mean_absolute_error"][-1],4)
+        
     model.save()
     
     model = MlModel.objects.get(id=pk)
@@ -190,7 +198,6 @@ def predict(request,pk):
     dataset = model.dataset
     features = model.features
     features = [x.replace("'"," ").replace('"'," ").strip() for x in features.strip('][').split(',')]
-    print(features)
     label = model.label
     latest = max([int(x) for x in os.listdir(os.path.join(BASE_DIR,'Models',pk,'serving_model',pk))])
     
@@ -208,10 +215,10 @@ def predict(request,pk):
             return Response({'message':'Input must be a list'},status=400)
         feature_len = schema_data[feature]["len_value"]
         if feature_len != len(feat_value):
-            return Response({'message':f'input for {feature} should be {feature_len}'},response=400)
-        inp.append(tf.convert_to_tensor(np.array(feat_value,ndmin=2,dtype=np.float32)))
+            return Response({'message':f'input for {feature} should be {feature_len}'},status=400)
+        inp.append(tf.convert_to_tensor(np.array(feat_value, ndmin=2, dtype=np.float32).reshape(-1, feature_len)))
         
-    trained_model = tf.saved_model.load(os.path.join({BASE_DIR},'Models',pk,'serving_model',pk,latest))
+    trained_model = tf.saved_model.load(os.path.join(BASE_DIR,'Models',pk,'serving_model',pk,str(latest)))
     
     output = trained_model(inp).numpy()[0]
     

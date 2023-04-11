@@ -30,7 +30,7 @@ class SchemaGenerator:
         # Create Schema from the statistics
         schema_gen = tfx.components.SchemaGen(statistics=statistics_gen.outputs['statistics'], \
                                             infer_feature_shape=True)
-        
+
         components = [
                     example_gen,
                     statistics_gen,

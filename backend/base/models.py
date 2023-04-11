@@ -16,6 +16,8 @@ class MlModel(models.Model):
     test_accuracy = models.FloatField(blank=True,null=True)
     train_loss = models.FloatField(blank=True,null=True)
     train_accuracy = models.FloatField(blank=True,null=True)
+    train_mean_absolute_error = models.FloatField(blank=True,null=True)
+    test_mean_absolute_error = models.FloatField(blank=True,null=True)
     
     def set_features(self,x):
         self.features = "-|-".join(x)
