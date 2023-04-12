@@ -1,0 +1,9 @@
+Django==4.2
+djangorestframework
+ml_metadata
+ml_pipelines_sdk
+numpy
+protobuf
+tensorflow==2.10.1
+tensorflow_data_validation
+tfx
